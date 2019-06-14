@@ -2,6 +2,12 @@
 .idea/
 *.iml
 
+# Eclipse
+.settings/
+.classpath
+.project
+
+
 # Maven
 target/
 .mvn/
