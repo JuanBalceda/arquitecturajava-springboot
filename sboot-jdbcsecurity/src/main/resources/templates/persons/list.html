@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<link rel='stylesheet' href='/webjars/bootstrap/4.3.1/css/bootstrap.min.css'>
+<script src='/webjars/jquery/3.0.0/jquery.min.js'></script>
+<script src='/webjars/bootstrap/4.3.1/js/bootstrap.min.js'></script>
+</head>
+<body>
+	<table>
+		<tr th:each="person:${persons}">
+			<td th:text="${person.name}"></td>
+			<td th:text="${person.lastName}"></td>
+			<td th:text="${person.age}"></td>
+			<td><a th:href="@{delete(name=${person.name})}" class="btn btn-danger">Delete</a></td>
+		</tr>
+	</table>
+
+	<form action="formInsert">
+		<input type="submit" value="new" class="btn btn-primary">
+	</form>
+</body>
+</html>

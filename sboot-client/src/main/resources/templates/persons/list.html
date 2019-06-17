@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<link rel='stylesheet'
+	href='/webjars/bootstrap/4.3.1/css/bootstrap.min.css'>
+<script src='/webjars/jquery/3.0.0/jquery.min.js'></script>
+<script src='/webjars/bootstrap/4.3.1/js/bootstrap.min.js'></script>
+<script type="text/javascript">
+	$(document).ready(function() {
+		
+		$('#personList').hide()
+		$('#personForm').hide()
+		loadPersons()
+	
+		$('#addNewForm').submit(function() {
+			$('#personList').hide()
+			$('#personForm').show()
+			return false;
+		})
+		
+		$('#insertForm').submit(function() {
+			
+			let person = {
+					name: $('#name').val(),
+					lastName: $('#lastName').val(),
+					age:$('#age').val()
+				}
+			
+			let request = $.ajax({
+				type: "POST",
+				url: "http://localhost:8080/webapi/persons",
+				contentType: "application/json; charset=utf-8",
+				data: JSON.stringify(person)
+			}).then(function () {
+				return loadPersons()
+			}).done(function () {
+				$('#personList').show()
+				$('#personForm').hide()	
+			})
+			
+			return false;
+		})
+	})
+	
+	
+	function loadPersons(){
+		$("tbody").empty()
+		$.get("http://localhost:8080/webapi/persons", function(persons){
+			persons.forEach(function (person) {
+				$("tbody").append(templateTable(person))
+			})
+		})
+	}
+	
+	function templateTable(person){
+		let template =
+			`<tr>
+				<td>${person.name}</td>
+				<td>${person.lastName}</td>
+				<td>${person.age}</td>
+				<td> </td>
+			</tr>`
+		return template;
+	}
+</script>
+</head>
+<body>
+	<div id="login" class="container">
+		<form id="loginForm">
+			<div class="form-group">
+				<label for="username">Username: </label> <input type="text"
+					class="form-control" id="username" name="username">
+			</div>
+			<div class="form-group">
+				<label for="password">Password: </label> <input type="password"
+					class="form-control" id="password" name="password">
+			</div>
+			<div class="form-group">
+				<input type="submit" value="Login" class="btn btn-primary">
+			</div>
+		</form>
+	</div>
+	
+	<div id="personList" class="container">
+		<table class="table">
+			<thead>
+				<tr>
+					<th scope="col">First</th>
+					<th scope="col">Last</th>
+					<th scope="col">Age</th>
+					<th scope="col">Actions</th>
+				</tr>
+			</thead>
+			<tbody>
+			</tbody>
+		</table>
+
+		<form id="addNewForm">
+			<input type="submit" value="new" class="btn btn-primary">
+		</form>
+	</div>
+
+	<div id="personForm" class="container">
+		<form id="insertForm">
+			<div class="form-group">
+				<label for="name">Name: </label> <input type="text"
+					class="form-control" id="name" name="name" placeholder="Enter name">
+			</div>
+			<div class="form-group">
+				<label for="lastName">Last name: </label> <input type="text"
+					class="form-control" id="lastName" name="lastName"
+					placeholder="Enter last name">
+			</div>
+			<div class="form-group">
+				<label for="age">Age: </label> <input type="text"
+					class="form-control" id="age" name="age" placeholder="Enter age">
+			</div>
+			<input type="submit" value="send" class="btn btn-primary">
+		</form>
+	</div>
+</body>
+</html>
