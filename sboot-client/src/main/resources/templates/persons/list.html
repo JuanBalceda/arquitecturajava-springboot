@@ -6,11 +6,13 @@
 <script src='/webjars/jquery/3.0.0/jquery.min.js'></script>
 <script src='/webjars/bootstrap/4.3.1/js/bootstrap.min.js'></script>
 <script type="text/javascript">
+
+	let header
+	
 	$(document).ready(function() {
 		
 		$('#personList').hide()
 		$('#personForm').hide()
-		loadPersons()
 	
 		$('#addNewForm').submit(function() {
 			$('#personList').hide()
@@ -28,28 +30,54 @@
 			
 			let request = $.ajax({
 				type: "POST",
+				beforeSend: function(request){
+					request.setRequestHeader('Authorization', header)
+					console.log(header)
+				},
+				crossDomain: true,
+				xhrFields: {
+					withCredentials: true
+				},
 				url: "http://localhost:8080/webapi/persons",
 				contentType: "application/json; charset=utf-8",
 				data: JSON.stringify(person)
 			}).then(function () {
 				return loadPersons()
-			}).done(function () {
-				$('#personList').show()
-				$('#personForm').hide()	
+			}).then(function(persons){
+				console.log(persons)
+							$('#loginForm').hide()
+
+				$('#insertForm').hide()
+				$('#personList').show()	
+				$("tbody").empty()
+
+				persons.forEach(function (person) {
+					$("tbody").append(templateTable(person))
+				})
 			})
-			
-			return false;
+			return false
+		})
+		
+		$('#loginForm').submit(function(){
+			login()
+			return false
 		})
 	})
 	
 	
 	function loadPersons(){
-		$("tbody").empty()
-		$.get("http://localhost:8080/webapi/persons", function(persons){
-			persons.forEach(function (person) {
-				$("tbody").append(templateTable(person))
+			return $.ajax({
+				type: "GET",
+				beforeSend: function(request){
+					request.setRequestHeader('Authorization', header)
+				},
+				crossDomain: true,
+				xhrFields: {
+					withCredentials: true
+				},
+				url: "http://localhost:8080/webapi/persons",
+				contentType: "application/json; charset=utf-8"
 			})
-		})
 	}
 	
 	function templateTable(person){
@@ -61,6 +89,47 @@
 				<td> </td>
 			</tr>`
 		return template;
+	}
+	
+	function login(){
+		
+		let user = {
+				name: $('#username').val(),
+				password: $('#password').val()
+		}
+		console.log(user)
+		
+		let request = $.ajax({
+			type: 'POST',
+			url: 'http://localhost:8080/webapi/login',
+			contentType: 'application/json; charset=utf-8',
+			crossDomain: true,
+			xhrFields: {
+				withCredentials: true
+			},
+			data: JSON.stringify(user),
+			success: function(data, status, request){
+				console.log(request.getResponseHeader('authorization'))
+				header=request.getResponseHeader('authorization')
+				console.log(header)			
+			},
+			error: function(data){
+				console.log('error ocurred')
+			}
+		}).then(function(){
+			return loadPersons()
+		}).then(function(persons){
+			console.log(persons)
+			
+			$('#loginForm').hide()
+			$('#personList').show()	
+			$("tbody").empty()
+
+			persons.forEach(function (person) {
+				$("tbody").append(templateTable(person))
+			})
+		})
+		return false
 	}
 </script>
 </head>
@@ -80,7 +149,7 @@
 			</div>
 		</form>
 	</div>
-	
+
 	<div id="personList" class="container">
 		<table class="table">
 			<thead>

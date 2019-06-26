@@ -36,12 +36,15 @@ public class WebSecurity extends WebSecurityConfigurerAdapter {
 
 		String loginPath = "/webapi/login";
 		// URLs patterns
-		http.cors()
-		.and()
+		http
+		.csrf()
+			.disable()
+		.cors()
+			.and()
 		.authorizeRequests()
-		.antMatchers(HttpMethod.POST, loginPath).permitAll()
-		.anyRequest().authenticated()
-		.and()
+			.antMatchers(HttpMethod.POST, loginPath).permitAll()
+			.anyRequest().authenticated()
+			.and()
 		.addFilterBefore(new LoginFilter(loginPath, authenticationManager()), UsernamePasswordAuthenticationFilter.class)
 		.addFilterBefore(new JWTAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
 	}
